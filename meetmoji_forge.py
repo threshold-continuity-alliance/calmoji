@@ -1,26 +1,56 @@
 #!/usr/bin/env python3
+
 """
-🦊 ICS Generator - Academic Year Calendar Creator
-Generates phase-specific .ics files for semester phases and meeting slots
+🦊 Meetmoji Forge — The Ritual Calendar Crafter — Where Time Meets Glyph
+
+Generates `.ics` calendar files for semester-aligned project phases and
+interleaved tri-weekly meeting slots, using deterministic emoji glyphs.
+
+Because your visual processing cortex deserves better than guilt.
+
+
 """
 
 import os
 import sys
 import uuid
 import re
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, time, timezone
 from collections import defaultdict
+
+# =============================================================================
+# 🔧 ARGUMENT PARSING
+# =============================================================================
+
+def parse_arguments():
+    """Parse command line arguments"""
+    dry_run = "--dry-run" in sys.argv
+    
+    # Parse year argument
+    year = 2025  # default
+    for arg in sys.argv:
+        if arg.startswith("--year="):
+            try:
+                year = int(arg.split("=")[1])
+            except ValueError:
+                print(f"❌ Error: Invalid year format in {arg}")
+                sys.exit(1)
+    
+    # Construct year_start based on year
+    year_start = f"{year}-09-15"
+    
+    return dry_run, year_start
+
+# Parse arguments at startup
+dry_run_mode, year_start = parse_arguments()
 
 # =============================================================================
 # 🔧 USER-EDITABLE CONFIGURATION
 # =============================================================================
 
-year_start = "2025-09-15"  # Academic year start date
 use_semesters = True  # True for semester system, False for quarterly
 meeting_cycle_weeks = 3  # Meeting recurrence interval in weeks
 include_oceania = True  # Include Oceania time slots (Mon & Fri only)
-total_meeting_cycles = 40  # Total cycles across the academic year
-reset_emoji_per_phase = True  # Reset emoji index per phase
 
 # 🐾 Curated emoji pool (150 glyphs)
 emoji_pool = [
@@ -40,29 +70,44 @@ emoji_pool = [
 # 📅 SEMESTER PLANNING PHASES
 # =============================================================================
 
+def count_meeting_cycles(start_date, end_date, meeting_cycle_weeks=3):
+    """
+    Count how many tri-weekly meetings can occur between two dates
+    (starting from the first Monday on or after start_date).
+    """
+    first_monday = get_first_monday_after(start_date.strftime("%Y-%m-%d"))
+    current = first_monday
+    count = 0
+    while current <= end_date:
+        count += 1
+        current += timedelta(weeks=meeting_cycle_weeks)
+    return count
+
+
 def get_semester_phases(start_date):
     """Generate semester planning phases based on start date"""
     start = datetime.strptime(start_date, "%Y-%m-%d")
     
     phases_data = [
-        ("Semester A (Seed)", 0, 97),
-        ("Winter Break", 98, 111),
-        ("Semester A (cont.)", 112, 136),
-        ("Downtime A→B", 139, 150),
-        ("Semester B (Flame)", 153, 283),
-        ("Summer Rest", 287, 298),
-        ("Deep Work Phase", 301, 340),
-        ("Preflight Prep", 343, 354),
+        ("Semester A (Seed)", 0, 97, "🌱"),
+        ("Winter Break", 98, 111, "❄️"),
+        ("Semester A (cont.)", 112, 136, "🌾"),
+        ("Downtime A→B", 139, 150, "🪷"),
+        ("Semester B (Flame)", 153, 283, "🔥"),
+        ("Summer Rest", 287, 298, "🐚"),
+        ("Deep Work Phase", 301, 340, "🧱"),
+        ("Preflight Prep", 343, 354, "🛫"),
     ]
     
-    return [(name, start + timedelta(days=s), start + timedelta(days=e)) 
-            for name, s, e in phases_data]
+    return [(name, start + timedelta(days=s), start + timedelta(days=e), f) 
+        for name, s, e, f in phases_data]
+
 
 # =============================================================================
 # 🕰️ MEETING SLOT CONFIGURATION
 # =============================================================================
 
-def get_meeting_slots():
+def get_meeting_slots(include_oceania):
     """Define meeting time slots with UTC times and local time labels"""
     slots = [
         ("Tokyo", 4, 30, 6, 30, "13:30–14:30 JST"),
@@ -148,86 +193,94 @@ def find_phase_for_date(date, phases):
     for phase_name, phase_start, phase_end in phases:
         if phase_start.date() <= date <= phase_end.date():
             return phase_name
-    return None
+    return "Gap Days 🌑"
 
 # =============================================================================
 # 🚀 MAIN GENERATION FUNCTIONS
 # =============================================================================
 
-def generate_meeting_events(dry_run=False):
-    """Generate meeting events organized by phase"""
-    slots = get_meeting_slots()
-    first_monday = get_first_monday_after(year_start)
-    phases = get_semester_phases(year_start)
-    
-    # Dictionary to store events by phase
+
+def generate_meeting_events(year_start, phases, meeting_slots, emoji_pool, dry_run=False, use_utc=True):
     phase_events = defaultdict(list)
-    
-    # Generate all meeting events across the academic year
-    for region, start_hour, start_min, end_hour, end_min, local_time in slots:
-        # Determine which days this slot runs
-        if region == "Oceania":
-            days = [0, 4]  # Monday and Friday only
-        else:
-            days = [0, 1, 2, 3, 4]  # Monday through Friday
-        
-        for day_offset in days:
-            # Create two 25-minute slots per time block
-            for minute_offset in [5, 35]:  # :05 and :35 past the hour
-                
-                # Calculate base slot time
-                slot_base = first_monday + timedelta(days=day_offset)
-                
-                # Generate events for all cycles across the academic year
-                for cycle in range(total_meeting_cycles):
-                    # Calculate event start time
-                    event_start = slot_base + timedelta(
-                        weeks=cycle * meeting_cycle_weeks,
-                        hours=start_hour,
-                        minutes=minute_offset
-                    )
-                    event_end = event_start + timedelta(minutes=25)
-                    event_date = event_start.date()
-                    
-                    # Find which phase this event falls into
-                    phase_name = find_phase_for_date(event_date, phases)
-                    
-                    # Skip if event falls outside all phases
-                    if not phase_name:
-                        continue
-                    
-                    # Calculate emoji index (deterministic per phase if reset_emoji_per_phase)
-                    if reset_emoji_per_phase:
-                        # Count events in this phase so far for this specific slot
-                        phase_event_count = len([e for e in phase_events[phase_name] 
-                                               if f"{region}" in e and f"({local_time})" in e])
-                        emoji_index = phase_event_count % len(emoji_pool)
-                    else:
-                        emoji_index = cycle % len(emoji_pool)
-                    
-                    emoji = emoji_pool[emoji_index]
-                    
-                    # Create event summary and description
-                    summary = f"{region} Slot {emoji} #{cycle + 1} ({local_time})"
-                    description = f"Auto-generated 🤖🔐☕️💬 — {phase_name}"
-                    
+    emoji_index = 0
+    series_counters = defaultdict(int)  # per-slot counters
+
+    for phase in phases:
+        start_date, end_date, phase_name, phase_emoji = phase
+        current_date = start_date
+        emojis_this_phase = emoji_pool.copy()
+        emoji_index = 0
+
+        while current_date <= end_date:
+            # Only include Mondays
+            if current_date.weekday() == 0:
+                for slot in meeting_slots:
+                    region, slot_start_hour, slot_start_minute, slot_end_hour, slot_end_minute, label = slot
+                    key = f"{region}_{slot_start_hour}_{slot_start_minute}"
+
+                    # Assign deterministic emoji
+                    if emoji_index >= len(emojis_this_phase):
+                        continue  # Avoid out-of-range errors
+                    emoji = emojis_this_phase[emoji_index]
+                    emoji_index += 1
+
+                    series_counters[key] += 1
+                    series_number = series_counters[key]
+
+                    # Convert to datetime
+                    start_dt = datetime.combine(current_date, time(slot_start_hour, slot_start_minute))
+                    end_dt = datetime.combine(current_date, time(slot_end_hour, slot_end_minute))
+
+                    if use_utc:
+                        start_dt = start_dt.replace(tzinfo=timezone.utc)
+                        end_dt = end_dt.replace(tzinfo=timezone.utc)
+
+                    summary = f"{region} Slot {emoji} #{series_number} ({label})"
+                    description = f"Auto-generated 🤖🔐☕️💬 time slot — {phase_name}"
+
                     if dry_run:
-                        print(f"[{phase_name}] {summary}: {format_datetime(event_start)} UTC")
-                    else:
-                        event = create_meeting_event(summary, event_start, event_end, description)
-                        phase_events[phase_name].append(event)
-    
+                        print(f"📅 {start_dt.isoformat()} — {summary}")
+                        continue
+
+                    event = Event()
+                    event.name = summary
+                    event.begin = start_dt
+                    event.end = end_dt
+                    event.description = description
+                    event.location = region
+                    event.categories = ["Meetmoji Slot", region, phase_name]
+
+                    phase_events[phase_name].append(event)
+
+            # Advance by 1 day
+            current_date += timedelta(days=1)
+
+    if dry_run:
+        return None  # Avoid writing files
+
     return phase_events
+
 
 def generate_meeting_ics(dry_run=False):
     """Generate meeting ICS files organized by phase"""
+
+    phases = get_semester_phases(year_start)
+    meeting_slots = get_meeting_slots(include_oceania)
     if dry_run:
         print("\n🔢 DRY RUN: Listing meeting slot schedule\n")
-        generate_meeting_events(dry_run=True)
-        return
+        phase_events = generate_meeting_events(year_start=year_start,
+            phases=phases,
+            meeting_slots=meeting_slots,
+            emoji_pool=emoji_pool,
+            dry_run=True)
+        return {}
     
     # Generate events
-    phase_events = generate_meeting_events(dry_run=False)
+    phase_events = generate_meeting_events(year_start=year_start,
+        phases=phases,
+        meeting_slots=meeting_slots,
+        emoji_pool=emoji_pool,
+        dry_run=False)
     
     # Create output directory
     os.makedirs("output", exist_ok=True)
@@ -262,13 +315,81 @@ def generate_semester_ics():
     
     print(f"📁 Generated: {filename}")
 
+# =============================================================================
+# 🧪 UNIT TEST STUB FOR FUTURE VERIFICATION
+# =============================================================================
+
+def test_calendar_generator():
+    """
+    Unit test stub for calendar generation verification
+    Run with: python -m pytest ics-generator.py::test_calendar_generator -v
+    """
+    import tempfile
+    
+    # Test configuration
+    test_year_start = "2025-09-15"
+    
+    # Test semester phases generation
+    phases = get_semester_phases(test_year_start)
+    
+    # Verify we have 8 phases
+    assert len(phases) == 8, f"Expected 8 phases, got {len(phases)}"
+    
+    # Verify first phase starts on correct date
+    first_phase = phases[0]
+    assert first_phase[0] == "Semester A (Seed)", f"First phase should be 'Semester A (Seed)', got '{first_phase[0]}'"
+    assert first_phase[1].strftime("%Y-%m-%d") == test_year_start, f"First phase should start on {test_year_start}"
+    
+    # Verify last phase is Preflight Prep
+    last_phase = phases[-1]
+    assert last_phase[0] == "Preflight Prep", f"Last phase should be 'Preflight Prep', got '{last_phase[0]}'"
+    
+    # Test meeting slots configuration
+    slots = get_meeting_slots()
+    expected_slots = 6 if include_oceania else 5
+    assert len(slots) == expected_slots, f"Expected {expected_slots} slots, got {len(slots)}"
+    
+    # Test first Monday calculation
+    first_monday = get_first_monday_after(test_year_start)
+    assert first_monday.weekday() == 0, "First Monday should be a Monday (weekday 0)"
+    
+    # Test argument parsing
+    import sys
+    old_argv = sys.argv.copy()
+    try:
+        sys.argv = ["script.py", "--year=2024", "--dry-run"]
+        dry_run, year_start = parse_arguments()
+        assert dry_run == True, "Should detect --dry-run"
+        assert year_start == "2024-09-15", f"Should set year_start to 2024-09-15, got {year_start}"
+    finally:
+        sys.argv = old_argv
+    
+    print("✅ All unit tests passed!")
+
+def run_tests():
+    """Run unit tests manually"""
+    print("🧪 Running unit tests...")
+    try:
+        test_calendar_generator()
+        print("🎉 All tests passed successfully!")
+    except AssertionError as e:
+        print(f"❌ Test failed: {e}")
+        return False
+    except Exception as e:
+        print(f"💥 Test error: {e}")
+        return False
+    return True
+
+# =============================================================================
+# 🚀 MAIN EXECUTION
+# =============================================================================
+
 def main():
     """Main execution function"""
-    dry_run = len(sys.argv) > 1 and sys.argv[1] == "--dry-run"
-    
-    if dry_run:
+    if dry_run_mode:
         print("🦊 ICS Generator - Dry Run Mode")
         print("=" * 40)
+        print(f"📅 Using year start: {year_start}")
         generate_meeting_ics(dry_run=True)
     else:
         print("🦊 ICS Generator - Academic Year Calendar Creator")
@@ -287,10 +408,12 @@ def main():
         print(f"   Total span: {(calendar_end - calendar_start).days} days")
         
         print(f"\n🔧 Configuration:")
+        print(f"   Year start: {year_start}")
         print(f"   Meeting cycle: every {meeting_cycle_weeks} weeks")
-        print(f"   Total cycles: {total_meeting_cycles}")
+        total_cycles = count_meeting_cycles(calendar_start, calendar_end, meeting_cycle_weeks)
+        print(f"   Total cycles: {total_cycles}")
         print(f"   Oceania slots: {'included' if include_oceania else 'excluded'}")
-        print(f"   Emoji reset per phase: {'enabled' if reset_emoji_per_phase else 'disabled'}")
+        print(f"   Emoji assignment: reset per phase")
         
         print(f"\n📁 Output directory: output/")
         
@@ -301,4 +424,8 @@ def main():
         print("\n🎉 Calendar files generated successfully!")
 
 if __name__ == "__main__":
-    main()
+    # Check if running tests
+    if len(sys.argv) > 1 and sys.argv[1] == "test":
+        run_tests()
+    else:
+        main()
