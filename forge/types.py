@@ -15,19 +15,6 @@ class Event:
     private: bool = True
     transparent: bool = True
 
-
-# @dataclass
-# class Phase:
-#     name: str
-#     start: datetime
-#     end: datetime
-#     emoji: str
-#     start_date: Optional[datetime] = None
-#     end_date: Optional[datetime] = None
-#     allow_meetings: bool = True
-#     meeting_density: str = "normal"  # Options: 'none', 'low', 'normal', 'high'
-#     note: Optional[str] = None
-
 @dataclass
 class Phase:
     name: str

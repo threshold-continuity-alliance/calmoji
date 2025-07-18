@@ -5,7 +5,6 @@ from forge.ics_writer import create_event, create_ics_header, create_ics_footer
 from forge.utils import get_start_date_from_year
 from forge.types import Event
 
-
 def test_ics_file_line_count(tmp_path):
     testfile = tmp_path / "test_output.ics"
 

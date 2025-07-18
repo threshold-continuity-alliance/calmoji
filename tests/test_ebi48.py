@@ -1,6 +1,6 @@
 # tests/test_emoji_clock.py
 
-from forge.emoji_clock import EBI48_CLOCK
+from forge.ebi48 import EBI48_CLOCK
 from datetime import datetime
 
 def test_ebi48_unique_emojis():

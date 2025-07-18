@@ -6,7 +6,6 @@ import re
 import unicodedata
 from typing import Union
 
-
 def parse_start_date(start_str):
     return datetime.datetime.strptime(start_str, "%Y-%m-%d")
 
@@ -27,14 +26,6 @@ def format_time_for_tz(dt, tz_name):
     Convert dt to tz and format as string
     """
     raise NotImplementedError("Timezone formatting not yet implemented.")
-
-# def get_first_monday_of_year(year: int) -> datetime:
-#     """Return the first Monday of the given calendar year at 00:05 UTC."""
-#     d = datetime.datetime(year, 1, 1)
-#     while d.weekday() != 0:  # 0 = Monday
-#         d += datetime.timedelta(days=1)
-#     return d.replace(hour=0, minute=5)
-
 
 def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime.datetime:
     """
@@ -74,11 +65,9 @@ def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime.d
         d += datetime.timedelta(days=1)
     return d.replace(hour=0, minute=5)
 
-
 def generate_uid(dt: datetime.datetime, label: str, namespace: str = "meetmoji") -> str:
     raw = f"{namespace}:{dt.isoformat()}:{label}"
     return sha256(raw.encode("utf-8")).hexdigest()[:16]
-
 
 def get_start_date_from_year(year: int) -> datetime:
     """
@@ -86,7 +75,6 @@ def get_start_date_from_year(year: int) -> datetime:
     (September 15th of that year) as a datetime object.
     """
     return parse_start_date(f"{year}-09-15")
-
 
 def get_first_monday_after(d):
     """
@@ -96,7 +84,6 @@ def get_first_monday_after(d):
     if days_ahead < 0:
         days_ahead += 7
     return d + datetime.timedelta(days=days_ahead)
-
 
 def slugify(value: str, allow_unicode: bool = False) -> str:
     """

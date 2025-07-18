@@ -5,11 +5,9 @@ from forge.calendar_phases import get_semester_phases
 from forge.config import SEMESTER_PHASES, YEAR_START_DATE
 from forge.types import Phase
 
-
 def test_semester_phase_count():
     phases = get_semester_phases(YEAR_START_DATE)
     assert len(phases) == len(SEMESTER_PHASES)
-
 
 def test_get_semester_phases_returns_expected_structure():
     anchor_date = datetime.datetime(2024, 9, 15)
@@ -29,7 +27,6 @@ def test_get_semester_phases_returns_expected_structure():
         assert phase.start == expected_start
         assert phase.end == expected_end
 
-
 def test_phase_enrichment_fields_exist():
     phases = get_semester_phases(datetime.datetime(2024, 9, 15))
     for p in phases:
@@ -37,7 +34,6 @@ def test_phase_enrichment_fields_exist():
         assert hasattr(p, "allow_meetings")
         assert hasattr(p, "note")
         assert p.start <= p.end
-
 
 def test_phase_density_tags():
     phases = get_semester_phases(datetime.datetime(2024, 9, 15))
@@ -55,7 +51,6 @@ def test_phase_density_tags():
         else:
             assert p.meeting_density == "normal"
             assert p.allow_meetings is True
-
 
 def test_phase_duration_computation():
     phases = get_semester_phases(YEAR_START_DATE)

@@ -1,4 +1,4 @@
-# forge/emoji_clock.py
+# forge/ebi48.py
 
 import datetime
 from typing import Mapping
@@ -69,7 +69,6 @@ EBI48_CLOCK: Mapping[int, tuple[str, str]] = {
     47: ("🦈", "Shark Face")
 }
 
-
 def get_emoji_for_time(dt: datetime.datetime) -> tuple[str, str]:
     """
     Map a datetime to a clock index in the 48-slot emoji face table.
@@ -89,23 +88,19 @@ def get_emoji_for_time(dt: datetime.datetime) -> tuple[str, str]:
 
     return get_emoji_for_slot(slot)
 
-
 def get_slot_index_for_emoji(emoji: str) -> int:
     for idx, (e, _) in EBI48_CLOCK.items():
         if e == emoji:
             return idx
     raise ValueError(f"Emoji {emoji} not found in clock.")
 
-
 def get_emoji_for_slot(slot: int) -> tuple[str, str]:
     """Return (emoji, face name) for a given 0–47 slot index."""
     return EBI48_CLOCK.get(slot, ("❓", "Unknown Face"))
 
-
 def get_emoji_name_for_slot(slot: int) -> str:
     """Return only the face name for a given slot index."""
     return EBI48_CLOCK.get(slot, ("❓", "Unknown Face"))[1]
-
 
 def get_all_ebi48_slots() -> list[tuple[int, str, str]]:
     return [(i, emoji, label) for i, (emoji, label) in EBI48_CLOCK.items()]

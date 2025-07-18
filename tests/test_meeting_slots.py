@@ -2,9 +2,8 @@
 
 import datetime
 from forge.meeting_slots import MEETING_SLOTS
-from forge.emoji_clock import get_emoji_for_time, get_emoji_name_for_slot
+from forge.ebi48 import get_emoji_for_time, get_emoji_name_for_slot
 from collections import defaultdict
-
 
 def to_datetime(hour, minute):
     return datetime.datetime(2025, 1, 1, hour, minute)
@@ -61,11 +60,9 @@ def test_emoji_assignment_for_all_slots():
         assert emoji not in seen_emojis, f"Duplicate emoji {emoji} for {region} {label}"
         seen_emojis.add(emoji)
 
-
 def test_all_meeting_slots_map_to_valid_emoji():
     for city, sh, sm, *_ in MEETING_SLOTS:
         dt = datetime.datetime(2024, 1, 1, sh, sm)
         emoji, label = get_emoji_for_time(dt)
         assert emoji != "❓", f"{city} at {sh:02}:{sm:02} maps to unknown emoji!"
         assert label != "Unknown Face", f"{city} at {sh:02}:{sm:02} maps to unknown label!"
-            

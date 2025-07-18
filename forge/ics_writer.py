@@ -1,7 +1,7 @@
 import datetime
 from typing import Optional
 
-from forge.emoji_clock import get_emoji_for_time
+from forge.ebi48 import get_emoji_for_time
 from forge.utils import (
     slugify,
     format_datetime,
@@ -9,7 +9,6 @@ from forge.utils import (
     get_first_weekday_of_year,
 )
 from forge.types import Event, Phase
-
 
 def create_ics_header(
     calname: str = "🧿 Meetmoji Calendar", version: str = "", comments: Optional[list[str]] = None
@@ -28,7 +27,6 @@ def create_ics_header(
     if comments:
         lines += [f"COMMENT:{comment}" for comment in comments]
     return "\n".join(lines) + "\n"
-
 
 def create_event(event: Event) -> str:
     lines = ["BEGIN:VEVENT"]
@@ -56,10 +54,8 @@ def create_event(event: Event) -> str:
     lines.append("END:VEVENT")
     return "\n".join(lines) + "\n"
 
-
 def create_ics_footer() -> str:
     return "END:VCALENDAR\n"
-
 
 def write_events_to_ics(events: list[Event], filename: str, header: bool = True, footer: bool = True) -> None:
     with open(filename, "w", encoding="utf-8") as f:
@@ -72,7 +68,6 @@ def write_events_to_ics(events: list[Event], filename: str, header: bool = True,
                 raise ValueError(f"Failed to render event at index {i}: {event}") from e
         if footer:
             f.write(create_ics_footer())
-
 
 def write_semester_blocks(phases: list[Phase], filename: Optional[str] = None) -> None:
     if not filename:
@@ -91,7 +86,6 @@ def write_semester_blocks(phases: list[Phase], filename: Optional[str] = None) -
         for phase in phases
     ]
     write_events_to_ics(events, filename)
-
 
 def write_ebi48_layer(target_path: str, year: int, recurring: bool = True, expanded: bool = False) -> None:
     assert not (recurring and expanded), "Choose either recurring or expanded mode, not both."

@@ -5,7 +5,6 @@ from forge.calendar_phases import get_semester_phases
 from forge.utils import get_start_date_from_year
 from forge.types import Event
 
-
 def test_slot_generation_for_first_phase():
     start_date = get_start_date_from_year(2024)
     phase = get_semester_phases(start_date)[0]
@@ -22,11 +21,9 @@ def test_slot_generation_for_first_phase():
         assert "Face" in evt.summary  # Emoji time label
         assert evt.start.weekday() < 5  # Monday to Friday only
 
-
 def test_all_events_within_phase_range():
     start_date = get_start_date_from_year(2024)
     phase = get_semester_phases(start_date)[0]
-    # _, phase_start, phase_end, _ = phase
     events = generate_meeting_slots(phase)
 
     for evt in events:
