@@ -7,19 +7,19 @@
 import argparse
 from pathlib import Path
 from datetime import date
-from forge.calendar_phases import get_semester_phases
-from forge.slot_generator import generate_meeting_slots
-from forge.utils import (
+from calmoji.calendar_phases import get_semester_phases
+from calmoji.slot_generator import generate_meeting_slots
+from calmoji.utils import (
     get_start_date_from_year,
     slugify,
     format_range_slug,
 )
-from forge.ics_writer import (
+from calmoji.ics_writer import (
     write_semester_blocks,
     write_events_to_ics,
     write_ebi48_layer,
 )
-from forge.dry_run import dry_run
+from calmoji.dry_run import dry_run
 
 def main():
     parser = argparse.ArgumentParser(description="🧿 calmoji — Ritual Calendar Crafter")
