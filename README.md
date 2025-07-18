@@ -85,12 +85,13 @@ Each participating weekday includes **8 meeting slots**, recurring every **3 wee
 
 Slots are defined for:
 
-* 🗼 Tokyo
-* 🕌 Delhi
-* 🏛 Brussels
-* 🏛 Washington DC
-* 🏞 Seattle
-  *(Optional: Oceania region)*
+* 🇳🇿 Auckland 🐨
+* 🗼 Tokyo ⛩️
+* 🕌 Delhi 🦚
+* 🕋 Mecca 🐪
+* 🏛 Brussels ⚛
+* 🇨🇺 Havana 🌴
+* ⛰️ Seattle 🌲
 
 ### 🧠 Emoji Time Protocol — `EBI48`
 
