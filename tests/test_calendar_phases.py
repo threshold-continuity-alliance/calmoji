@@ -1,9 +1,9 @@
 # tests/test_calendar_phases.py
 
 import datetime
-from forge.calendar_phases import get_semester_phases
-from forge.config import SEMESTER_PHASES, YEAR_START_DATE
-from forge.types import Phase
+from calmoji.calendar_phases import get_semester_phases
+from calmoji.config import SEMESTER_PHASES, YEAR_START_DATE
+from calmoji.types import Phase
 
 def test_semester_phase_count():
     phases = get_semester_phases(YEAR_START_DATE)

@@ -1,4 +1,4 @@
-# forge/utils.py
+# calmoji/utils.py
 
 import datetime
 from hashlib import md5, sha256
@@ -65,7 +65,7 @@ def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime.d
         d += datetime.timedelta(days=1)
     return d.replace(hour=0, minute=5)
 
-def generate_uid(dt: datetime.datetime, label: str, namespace: str = "meetmoji") -> str:
+def generate_uid(dt: datetime.datetime, label: str, namespace: str = "calmoji") -> str:
     raw = f"{namespace}:{dt.isoformat()}:{label}"
     return sha256(raw.encode("utf-8")).hexdigest()[:16]
 

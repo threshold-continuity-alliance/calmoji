@@ -1,6 +1,6 @@
-# forge/meeting_slots.py
+# calmoji/meeting_slots.py
 
-# 🕒 Meetmoji Anchor Slots — Always Local Time 13:30–14:30
+# 🕒 calmoji anchor slots — always local time 13:30–14:30
 # Times are expressed in UTC to align local anchors
 
 # (Region, Start hour, Start minute, End hour, End minute, Local label)

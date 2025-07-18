@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# 🧿 Meetmoji Forge — main.py
+
+# 🧿 calmoji.py
 # This is the ritual conductor.
 # It reads the glyphs. It sets the cadence. It writes the time.
 
@@ -21,7 +22,7 @@ from forge.ics_writer import (
 from forge.dry_run import dry_run
 
 def main():
-    parser = argparse.ArgumentParser(description="🧿 Meetmoji Forge — Ritual Calendar Crafter")
+    parser = argparse.ArgumentParser(description="🧿 calmoji — Ritual Calendar Crafter")
     parser.add_argument("--year", type=int, help="Start year (e.g., 2024)", default=2024)
     parser.add_argument("--dry-run", action="store_true", help="Only show output, don't write ICS files")
     parser.add_argument("--version", action="version", version="EBI48 Generator v2025.1")
@@ -33,7 +34,7 @@ def main():
     if dry_mode:
         print("\n🔍 DRY RUN ENABLED — No files will be written.\n")
 
-    print("🦊 Meetmoji Forge — Initiating Ritual Sequence")
+    print("🦊 calmoji — Initiating Ritual Sequence")
     print("=" * 50)
 
     # 🌅 Step 1: Derive academic year start date and phase structure

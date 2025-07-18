@@ -1,12 +1,11 @@
-# forge/calendar_phases.py
+# calmoji/calendar_phases.py
 
 import datetime
 from typing import List, Tuple
-from forge.config import SEMESTER_PHASES
-from forge.types import Phase
-from forge.types import Phase
-from forge.config import SEMESTER_PHASES
-
+from calmoji.config import SEMESTER_PHASES
+from calmoji.types import Phase
+from calmoji.types import Phase
+from calmoji.config import SEMESTER_PHASES
 
 def get_semester_phases(start_date: datetime.datetime) -> list[Phase]:
     """

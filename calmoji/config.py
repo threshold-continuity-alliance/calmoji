@@ -1,7 +1,7 @@
-# forge/config.py
+# calmoji/config.py
 
 from datetime import datetime
-from forge.types import Phase
+from calmoji.types import Phase
 
 # 🧿 Academic Year Start
 YEAR_START_DATE_STR: str = "2024-09-15"

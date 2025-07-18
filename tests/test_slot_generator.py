@@ -1,9 +1,9 @@
 # tests/test_slot_generator.py
 
-from forge.slot_generator import generate_meeting_slots
-from forge.calendar_phases import get_semester_phases
-from forge.utils import get_start_date_from_year
-from forge.types import Event
+from calmoji.slot_generator import generate_meeting_slots
+from calmoji.calendar_phases import get_semester_phases
+from calmoji.utils import get_start_date_from_year
+from calmoji.types import Event
 
 def test_slot_generation_for_first_phase():
     start_date = get_start_date_from_year(2024)

@@ -1,11 +1,11 @@
-# forge/slot_generator.py
+# calmoji/slot_generator.py
 
 from datetime import timedelta
 from collections import defaultdict
-from forge.config import OCEANIA_SLOTS_ENABLED
-from forge.meeting_slots import MEETING_SLOTS
-from forge.types import Event, Phase
-from forge.ebi48 import get_emoji_for_time, get_emoji_name_for_slot
+from calmoji.config import OCEANIA_SLOTS_ENABLED
+from calmoji.meeting_slots import MEETING_SLOTS
+from calmoji.types import Event, Phase
+from calmoji.ebi48 import get_emoji_for_time, get_emoji_name_for_slot
 
 def generate_meeting_slots(phase):
     """

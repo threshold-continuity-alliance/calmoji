@@ -1,7 +1,7 @@
 # tests/test_config.py
 
-from forge import config
-from forge.types import Phase
+from calmoji import config
+from calmoji.types import Phase
 
 def test_year_start_date():
     assert config.YEAR_START_DATE.year == 2024

@@ -1,9 +1,9 @@
 import datetime
-from forge.calendar_phases import get_semester_phases
-from forge.slot_generator import generate_meeting_slots
-from forge.ics_writer import create_event, create_ics_header, create_ics_footer
-from forge.utils import get_start_date_from_year
-from forge.types import Event
+from calmoji.calendar_phases import get_semester_phases
+from calmoji.slot_generator import generate_meeting_slots
+from calmoji.ics_writer import create_event, create_ics_header, create_ics_footer
+from calmoji.utils import get_start_date_from_year
+from calmoji.types import Event
 
 def test_ics_file_line_count(tmp_path):
     testfile = tmp_path / "test_output.ics"

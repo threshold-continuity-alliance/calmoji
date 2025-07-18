@@ -1,6 +1,6 @@
 from datetime import datetime
 import pytest
-from forge.utils import get_first_monday_after, get_first_weekday_of_year
+from calmoji.utils import get_first_monday_after, get_first_weekday_of_year
 
 def test_first_monday_after_basic():
     d = datetime(2024, 9, 15)  # Sunday

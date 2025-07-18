@@ -2,11 +2,11 @@
 
 import datetime
 from collections import defaultdict
-from forge.meeting_slots import MEETING_SLOTS
-from forge.utils import get_start_date_from_year
-from forge.ebi48 import get_emoji_for_time, get_emoji_name_for_slot
-from forge.calendar_phases import get_semester_phases
-from forge.slot_generator import generate_meeting_slots
+from calmoji.meeting_slots import MEETING_SLOTS
+from calmoji.utils import get_start_date_from_year
+from calmoji.ebi48 import get_emoji_for_time, get_emoji_name_for_slot
+from calmoji.calendar_phases import get_semester_phases
+from calmoji.slot_generator import generate_meeting_slots
 
 def to_datetime(hour, minute):
     return datetime.datetime(2025, 1, 1, hour, minute)

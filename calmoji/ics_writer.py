@@ -1,24 +1,24 @@
 import datetime
 from typing import Optional
 
-from forge.ebi48 import get_emoji_for_time
-from forge.utils import (
+from calmoji.ebi48 import get_emoji_for_time
+from calmoji.utils import (
     slugify,
     format_datetime,
     generate_uid,
     get_first_weekday_of_year,
 )
-from forge.types import Event, Phase
+from calmoji.types import Event, Phase
 
 def create_ics_header(
-    calname: str = "🧿 Meetmoji Calendar", version: str = "", comments: Optional[list[str]] = None
+    calname: str = "🧿 calmoji calendar", version: str = "", comments: Optional[list[str]] = None
 ) -> str:
     full_name = f"{calname} {version}".strip()
     lines = [
         "BEGIN:VCALENDAR",
         "VERSION:2.0",
         "CALSCALE:GREGORIAN",
-        "PRODID:-//Threshold Continuity Alliance//Meetmoji Forge//EN",
+        "PRODID:-//Threshold Continuity Alliance//calmoji//EN",
         f"NAME:{full_name}",
         f"X-WR-CALNAME:{full_name}",
         "X-WR-TIMEZONE:UTC",
@@ -93,7 +93,7 @@ def write_ebi48_layer(target_path: str, year: int, recurring: bool = True, expan
     ref_day = get_first_weekday_of_year(year, weekday=5)  # Saturday
 
     header = create_ics_header(
-        calname=f"🧿 Meetmoji EBI48 Clock — Canonical Emoji Time (UTC Only) v{year}",
+        calname=f"🧿 calmoji EBI48 Clock — Canonical Emoji Time (UTC Only) v{year}",
         comments=[
             "EBI48 is a deterministic, symbolic emoji-based time layer.",
             "It recurs weekly and does not shift with local time.",
