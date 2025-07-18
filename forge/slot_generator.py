@@ -20,26 +20,47 @@ def generate_meeting_slots(phase):
     events = []
     current_date = phase.start
 
+    # Define city-specific valid weekdays (0 = Monday, 6 = Sunday)
+    CITY_WEEKDAYS = {
+        "Mecca": {6, 0, 1, 2, 3},  # Sunday–Thursday
+        # Default for all others is Monday–Friday (0–4)
+    }
+
     while current_date <= phase.end:
-        if current_date.weekday() < 5:  # Monday to Friday only
-            for city, start_hr, start_min, end_hr, end_min, local_desc in MEETING_SLOTS:
-                if city == "Oceania" and not OCEANIA_SLOTS_ENABLED:
-                    continue
+        for slot in MEETING_SLOTS:
+            city, start_hr, start_min, end_hr, end_min, local_desc = slot
 
-                start_dt = current_date.replace(hour=start_hr, minute=start_min)
-                end_dt = current_date.replace(hour=end_hr, minute=end_min)
+            # Optional filter (for now only Auckland)
+            if city == "Auckland" and not OCEANIA_SLOTS_ENABLED:
+                continue
 
-                emoji, face_name = get_emoji_for_time(start_dt)
+            # Determine valid weekdays for this city
+            valid_weekdays = CITY_WEEKDAYS.get(city, {0, 1, 2, 3, 4})
+            if current_date.weekday() not in valid_weekdays:
+                continue
 
-                summary = f"{city} {emoji} {face_name} Slot ({local_desc})"
-                description = f"{phase.emoji} — {phase.name}"
+            # Handle Mecca's Sunday–Thursday week (6 = Sunday, 4 = Thursday)
+            if city == "Mecca" and current_date.weekday() in {4, 5}:  # Friday (4), Saturday (5)
+                continue
 
-                events.append(Event(
-                    start=start_dt,
-                    end=end_dt,
-                    summary=summary,
-                    description=description
-                ))
+            # All others default to Monday–Friday (0–4)
+            if city != "Mecca" and current_date.weekday() > 4:
+                continue
+            
+            start_dt = current_date.replace(hour=start_hr, minute=start_min)
+            end_dt = current_date.replace(hour=end_hr, minute=end_min)
+
+            emoji, face_name = get_emoji_for_time(start_dt)
+
+            summary = f"{city} {emoji} {face_name} Slot ({local_desc})"
+            description = f"{phase.emoji} — {phase.name}"
+
+            events.append(Event(
+                start=start_dt,
+                end=end_dt,
+                summary=summary,
+                description=description
+            ))
 
         current_date += timedelta(days=1)
 

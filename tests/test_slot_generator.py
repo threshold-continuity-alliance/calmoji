@@ -19,7 +19,11 @@ def test_slot_generation_for_first_phase():
         assert hasattr(evt, "summary")
         assert hasattr(evt, "description")
         assert "Face" in evt.summary  # Emoji time label
-        assert evt.start.weekday() < 5  # Monday to Friday only
+        if "Mecca" in evt.summary:
+            assert evt.start.weekday() in {6, 0, 1, 2, 3}  # Sunday to Thursday
+        else:
+            assert evt.start.weekday() in range(5)  # Monday (0) to Friday (4)
+
 
 def test_all_events_within_phase_range():
     start_date = get_start_date_from_year(2024)
