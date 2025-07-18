@@ -207,7 +207,7 @@ We’ve cross-checked slot templates against Islamic prayer windows for empathy 
 
 ## 🧭 Design Philosophy: Semantic Resilience
 
-**calmoji** is a component of the [Threshold Continuity Alliance (TCA)](https://longnow.eu).
+**calmoji** is a component of the [Threshold Continuity Alliance (TCA)](https://tca.earth/).
 
 It is designed to:
 
@@ -223,9 +223,9 @@ It is designed to:
 ## 🙌 Credits
 
 * 🧠 Ritual Design & Calendar Theory: **Trey Darley**
-* 🔧 Semantic Architecture & Engineering: **ChatGPT**, Claude
+* 🔧 Semantic Architecture & Engineering: **ChatGPT**, **Claude**
 * 🦊 Glyph Taste Consulting: **ChatGPT**
-* 🏛 Affiliation: **Threshold Continuity Alliance (TCA)**
+* 🌱 Stewardship: **Threshold Continuity Alliance (TCA)**
 
 ---
 
