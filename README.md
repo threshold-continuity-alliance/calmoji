@@ -1,13 +1,13 @@
-# 🧿 Meetmoji Forge
+# 🧿 calmoji
 
 **The Ritual Calendar Crafter — Where Time Meets Glyph**
 *...and where your visual cortex takes over from your guilt-ridden monkey mind!*
 
 ---
 
-## 📖 What is Meetmoji Forge?
+## 📖 What is calmoji?
 
-**Meetmoji Forge** is a handcrafted calendaring ritual tool that generates `.ics` files for your academic year — complete with phase-based planning blocks and visually anchored, emoji-clock-coded meeting slots.
+**calmoji** is a handcrafted calendaring ritual tool that generates `.ics` files for your academic year — complete with phase-based planning blocks and visually anchored, emoji-clock-coded meeting slots.
 
 This is not a generic scheduling app.
 It is a **semantic time protocol**.
@@ -35,7 +35,7 @@ But human minds aren’t machines. They are:
 * **Symbolic**
 * **Context-sensitive**
 
-**Meetmoji Forge** is designed from first principles to support high-coherence scheduling across global teams, without sacrificing clarity or dignity.
+**calmoji** is designed from first principles to support high-coherence scheduling across global teams, without sacrificing clarity or dignity.
 
 It works by:
 
@@ -46,6 +46,11 @@ It works by:
 * Outputting **modular, shareable `.ics` files** — ready to drop into any modern calendar
 
 No apps. No cloud. Just clean, meaningful time encoded in human-readable glyphs.
+
+Calmoji is not a scheduling app.
+
+It's a **symbolic interface to time** — 
+a **cognitive calendar protocol**.
 
 ---
 
@@ -152,22 +157,22 @@ In `main.py` or CLI args:
 ## 🧪 Usage
 
 ```bash
-git clone https://github.com/admin-tca/meetmoji-forge.git
-cd meetmoji-forge
-python3 main.py --year=2039
+git clone https://github.com/threshold-continuity-alliance/calmoji.git
+cd calmoji/
+python3 calmoji.py --year=2039
 ```
 
 To preview the schedule structure without writing files:
 
 ```bash
-python3 main.py --year=2039 --dry-run
+python3 calmoji.py --year=2039 --dry-run
 ```
 
 ---
 
 ## 🙏 On Rhythmic Coexistence
 
-**Meetmoji Forge is secular — but rhythm-aware.**
+**calmoji is secular — but rhythm-aware.**
 
 We’ve cross-checked slot templates against Islamic prayer windows for empathy in scheduling:
 
@@ -201,7 +206,7 @@ We’ve cross-checked slot templates against Islamic prayer windows for empathy 
 
 ## 🧭 Design Philosophy: Semantic Resilience
 
-**Meetmoji Forge** is a component of the [Threshold Continuity Alliance (TCA)](https://longnow.eu).
+**calmoji** is a component of the [Threshold Continuity Alliance (TCA)](https://longnow.eu).
 
 It is designed to:
 
