@@ -7,6 +7,7 @@ from calmoji.utils import get_start_date_from_year
 from calmoji.ebi48 import get_emoji_for_time, get_emoji_name_for_slot
 from calmoji.calendar_phases import get_semester_phases
 from calmoji.slot_generator import generate_meeting_slots
+from calmoji.types import Phase
 
 def to_datetime(hour, minute):
     return datetime.datetime(2025, 1, 1, hour, minute)

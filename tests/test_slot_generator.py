@@ -3,7 +3,7 @@
 from calmoji.slot_generator import generate_meeting_slots
 from calmoji.calendar_phases import get_semester_phases
 from calmoji.utils import get_start_date_from_year
-from calmoji.types import Event
+from calmoji.types import Event, Phase
 
 def test_slot_generation_for_first_phase():
     start_date = get_start_date_from_year(2024)

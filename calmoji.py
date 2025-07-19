@@ -19,7 +19,9 @@ from calmoji.ics_writer import (
     write_events_to_ics,
     write_ebi48_layer,
 )
+from calmoji.focus_blocks_writer import write_focus_blocks_weekly
 from calmoji.dry_run import dry_run
+
 
 def main():
     parser = argparse.ArgumentParser(description="🧿 calmoji — Ritual Calendar Crafter")
@@ -59,7 +61,8 @@ def main():
         target_path = f"output/meeting_{slugify(phase.name)}_{format_range_slug(phase.start, phase.end)}.ics"
 
         if dry_mode:
-            dry_run(events, phase.name)
+            # dry_run(events, phase.name)
+            dry_run(events, label=phase.name, kind="meeting slots")
         else:
             write_events_to_ics(events, target_path)
             print(f"✅ Wrote: {target_path}")
@@ -70,7 +73,15 @@ def main():
         write_events_to_ics(all_events, consolidated_path)
         print(f"✅ Wrote: {consolidated_path}")
 
-    # 🧠 Step 6: Emit canonical emoji time overlay (EBI48)
+    # 🧘 Step 6: Write weekly focus blocks (12x per day, Sunday–Friday)
+    if not dry_mode:
+        write_focus_blocks_weekly(phases)
+    # TODO: FIX focus blocks dry_mode()
+    # if dry_mode:
+    #     dry_run(focus_events, label="Week 2025-W01", kind="focus blocks")
+
+
+    # 🧠 Step 7: Emit canonical emoji time overlay (EBI48)
     ebi48_path = f"output/ebi48_layer_{start_date.year}.ics"
     write_ebi48_layer(ebi48_path, start_date.year)
     print(f"✅ Wrote: {ebi48_path}")

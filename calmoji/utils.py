@@ -5,6 +5,10 @@ from hashlib import md5, sha256
 import re
 import unicodedata
 from typing import Union
+from collections import defaultdict
+from calmoji.types import Phase
+from calmoji.focus_blocks_config import ACTIVE_WEEKDAYS
+
 
 def parse_start_date(start_str):
     return datetime.datetime.strptime(start_str, "%Y-%m-%d")
@@ -99,3 +103,17 @@ def slugify(value: str, allow_unicode: bool = False) -> str:
         value = unicodedata.normalize('NFKD', value).encode('ascii', 'ignore').decode('ascii')
     value = re.sub(r"[^\w\s-]", "", value).strip().lower()
     return re.sub(r"[-\s]+", "_", value)
+
+
+def group_phase_days_by_week(phase: Phase) -> dict[tuple[int, int], list[datetime]]:
+    """Return a dict mapping (year, ISO week number) → list of datetime.date within that phase."""
+    week_map = defaultdict(list)
+    current_day = phase.start
+
+    while current_day <= phase.end:
+        if current_day.strftime("%A") in ACTIVE_WEEKDAYS:
+            iso_year, iso_week, _ = current_day.isocalendar()
+            week_map[(iso_year, iso_week)].append(current_day)
+        current_day += datetime.timedelta(days=1)
+
+    return week_map
