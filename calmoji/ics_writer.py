@@ -28,31 +28,31 @@ def create_ics_header(
         lines += [f"COMMENT:{comment}" for comment in comments]
     return "\n".join(lines) + "\n"
 
-def create_event(event: Event) -> str:
-    lines = ["BEGIN:VEVENT"]
-    full_summary = f"{event.emoji} {event.summary}" if event.emoji else event.summary
-    uid = event.uid or generate_uid(event.start, event.summary)
-    lines.append(f"UID:{uid}")
-    lines.append(f"SUMMARY:{full_summary}")
-    if event.description:
-        lines.append(f"DESCRIPTION:{event.description}")
+# def create_event(event: Event) -> str:
+#     lines = ["BEGIN:VEVENT"]
+#     full_summary = f"{event.emoji} {event.summary}" if event.emoji else event.summary
+#     uid = event.uid or generate_uid(event.start, event.summary)
+#     lines.append(f"UID:{uid}")
+#     lines.append(f"SUMMARY:{full_summary}")
+#     if event.description:
+#         lines.append(f"DESCRIPTION:{event.description}")
 
-    if event.all_day:
-        lines.append(f"DTSTART;VALUE=DATE:{event.start.strftime('%Y%m%d')}")
-        lines.append(f"DTEND;VALUE=DATE:{(event.end + datetime.timedelta(days=1)).strftime('%Y%m%d')}")
-    else:
-        lines.append(f"DTSTART:{format_datetime(event.start)}")
-        lines.append(f"DTEND:{format_datetime(event.end)}")
+#     if event.all_day:
+#         lines.append(f"DTSTART;VALUE=DATE:{event.start.strftime('%Y%m%d')}")
+#         lines.append(f"DTEND;VALUE=DATE:{(event.end + datetime.timedelta(days=1)).strftime('%Y%m%d')}")
+#     else:
+#         lines.append(f"DTSTART:{format_datetime(event.start)}")
+#         lines.append(f"DTEND:{format_datetime(event.end)}")
 
-    if event.recurrence:
-        lines.append(f"RRULE:{event.recurrence}")
-    if event.private:
-        lines.append("CLASS:PRIVATE")
-    if event.transparent:
-        lines.append("TRANSP:TRANSPARENT")
+#     if event.recurrence:
+#         lines.append(f"RRULE:{event.recurrence}")
+#     if event.private:
+#         lines.append("CLASS:PRIVATE")
+#     if event.transparent:
+#         lines.append("TRANSP:TRANSPARENT")
 
-    lines.append("END:VEVENT")
-    return "\n".join(lines) + "\n"
+#     lines.append("END:VEVENT")
+#     return "\n".join(lines) + "\n"
 
 def create_ics_footer() -> str:
     return "END:VCALENDAR\n"
@@ -63,7 +63,7 @@ def write_events_to_ics(events: list[Event], filename: str, header: bool = True,
             f.write(create_ics_header())
         for i, event in enumerate(events):
             try:
-                f.write(create_event(event))
+                f.write("\n".join(event.to_ics()))
             except Exception as e:
                 raise ValueError(f"Failed to render event at index {i}: {event}") from e
         if footer:
@@ -129,7 +129,7 @@ def write_ebi48_layer(target_path: str, year: int, recurring: bool = True, expan
                             emoji=emoji,
                             uid=generate_uid(inst_start, summary),
                         )
-                        f.write(create_event(event))
+                        f.write("\n".join(event.to_ics()))
                 else:
                     event = Event(
                         start=base_start,
@@ -140,6 +140,6 @@ def write_ebi48_layer(target_path: str, year: int, recurring: bool = True, expan
                         recurrence="RRULE:FREQ=WEEKLY;COUNT=52" if recurring else None,
                         uid=generate_uid(base_start, summary),
                     )
-                    f.write(create_event(event))
+                    f.write("\n".join(event.to_ics()))
 
         f.write(create_ics_footer())

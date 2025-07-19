@@ -27,23 +27,74 @@ def generate_focus_block_events_for_days(days: list[datetime]) -> list[Event]:
     return events
 
 
+# def generate_focus_block_glyph_key_event(day: datetime) -> Event:
+#     """Return a single all-day event on Saturday with emoji reference key."""
+
+#     if isinstance(day, date) and not isinstance(day, datetime):
+#         # Convert to datetime if necessary (won't affect all-day flag, but keeps type clean)
+#         day = datetime.combine(day, datetime.min.time())
+        
+#     emoji_lines = [f"{emoji}  {desc}" for (_, _, _, _, _, emoji), desc in zip(FOCUS_BLOCKS, [
+#         "Deep Thinking", "Writing", "Reading", "Technical", "Admin",
+#         "Comms", "Reflect", "Analysis", "Creative", "Maintenance", "Decision", "Closure"
+#     ])]
+#     description = "Focus Block Glyph Key:\n\n" + "\n".join(emoji_lines)
+#     return Event(
+#         # start=day.replace(hour=0, minute=0),
+#         # end=day.replace(hour=23, minute=59),
+#         summary="⛩️ Focus Block Glyph Key",
+#         description=description,
+#         emoji="⛩️",
+#         all_day=True
+#     )
+
+
+# def generate_focus_block_glyph_key_event(day: datetime) -> Event:
+#     """Return a single all-day event on Saturday with emoji reference key."""
+
+#     # Ensure `day` is a date object (no time)
+#     if isinstance(day, datetime):
+#         day = day.date()
+
+#     emoji_lines = [f"{emoji}  {desc}" for (_, _, _, _, _, emoji), desc in zip(FOCUS_BLOCKS, [
+#         "Deep Thinking", "Writing", "Reading", "Technical", "Admin",
+#         "Comms", "Reflect", "Analysis", "Creative", "Maintenance", "Decision", "Closure"
+#     ])]
+#     description = "Focus Block Glyph Key:\n\n" + "\n".join(emoji_lines)
+
+#     return Event(
+#         start=day,
+#         end=day + timedelta(days=1),
+#         summary="⛩️ Focus Block Glyph Key",
+#         description=description,
+#         emoji="⛩️",
+#         all_day=True
+#     )
+
+
 def generate_focus_block_glyph_key_event(day: datetime) -> Event:
     """Return a single all-day event on Saturday with emoji reference key."""
-    
+
+    # Normalize to datetime at midnight
     if isinstance(day, date) and not isinstance(day, datetime):
-        day = datetime.combine(day, time(0, 0))
-        
+        day = datetime.combine(day, datetime.min.time())
+
+    start = day.replace(hour=0, minute=0, second=0, microsecond=0)
+    end = (start + timedelta(days=1))
+
     emoji_lines = [f"{emoji}  {desc}" for (_, _, _, _, _, emoji), desc in zip(FOCUS_BLOCKS, [
         "Deep Thinking", "Writing", "Reading", "Technical", "Admin",
         "Comms", "Reflect", "Analysis", "Creative", "Maintenance", "Decision", "Closure"
     ])]
     description = "Focus Block Glyph Key:\n\n" + "\n".join(emoji_lines)
+
     return Event(
-        start=day.replace(hour=0, minute=0),
-        end=day.replace(hour=23, minute=59),
+        start=start,
+        end=end,
         summary="⛩️ Focus Block Glyph Key",
         description=description,
         emoji="⛩️",
+        all_day=True  # Used later by ICS writer to emit VALUE=DATE if True
     )
 
 

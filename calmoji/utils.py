@@ -1,11 +1,12 @@
 # calmoji/utils.py
 
 import datetime
-from hashlib import md5, sha256
+from hashlib import sha256
 import re
 import unicodedata
 from typing import Union, Dict, List, Tuple
 from collections import defaultdict
+from calmoji.uid import generate_uid
 from calmoji.types import Phase, PhaseWeekSpan
 from calmoji.focus_blocks_config import ACTIVE_WEEKDAYS
 
@@ -69,10 +70,6 @@ def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime.d
         d += datetime.timedelta(days=1)
     return d.replace(hour=0, minute=5)
 
-def generate_uid(dt: datetime.datetime, label: str, namespace: str = "calmoji") -> str:
-    raw = f"{namespace}:{dt.isoformat()}:{label}"
-    uid_hash = sha256(raw.encode("utf-8")).hexdigest()[:16]
-    return f"{uid_hash}-{dt.strftime('%Y%m%dT%H%M%S')}@{namespace}.local"
 
 def get_start_date_from_year(year: int) -> datetime:
     """

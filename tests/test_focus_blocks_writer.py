@@ -121,7 +121,7 @@ def test_glyph_key_event_written_even_when_alone(tmp_path):
 
         content = expected_filename.read_text(encoding="utf-8")
         summaries = [line for line in content.splitlines() if line.startswith("SUMMARY:")]
-        glyph_lines = [line for line in summaries if "Focus Block Glyph Key" in line]
+        glyph_lines = [line for line in content.splitlines() if "Glyph Key" in line]
 
         assert len(glyph_lines) == 1, "Expected exactly one glyph key event in the ICS file"
     finally:

@@ -1,7 +1,7 @@
 import datetime
 from calmoji.calendar_phases import get_semester_phases
 from calmoji.slot_generator import generate_meeting_slots
-from calmoji.ics_writer import create_event, create_ics_header, create_ics_footer
+from calmoji.ics_writer import create_ics_header, create_ics_footer
 from calmoji.utils import get_start_date_from_year
 from calmoji.types import Event, Phase
 
@@ -23,7 +23,7 @@ def test_ics_file_line_count(tmp_path):
     # Write ICS file with one event
     with open(testfile, "w", encoding="utf-8") as f:
         f.write(create_ics_header())
-        f.write(create_event(event))
+        f.write("\n".join(event.to_ics()))
         f.write(create_ics_footer())
 
     # Read and verify output

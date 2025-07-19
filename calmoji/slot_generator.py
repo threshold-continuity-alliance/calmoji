@@ -62,6 +62,6 @@ def generate_meeting_slots(phase):
                 description=description
             ))
 
-        current_date += timedelta(days=1)
+        current_date += timedelta(minutes=1439)
 
     return events
