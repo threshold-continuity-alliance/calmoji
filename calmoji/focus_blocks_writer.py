@@ -65,6 +65,7 @@ def generate_focus_block_glyph_key_event(day: datetime) -> Event:
 def write_focus_blocks_weekly(phases: list[Phase]) -> None:
     """Write focus blocks per week per phase into .ics files, always including glyph key on Saturdays."""
     for phase in phases:
+        print(f"📅 {phase.name} covers weeks: {[w for (_, w) in group_phase_days_by_week(phase).keys()]}")
         weekly_days = group_phase_days_by_week(phase)
 
         for (year, week), days in weekly_days.items():
