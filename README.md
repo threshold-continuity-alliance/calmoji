@@ -2,11 +2,11 @@
 
 # 🧿 calmoji — Ritual Calendar Generator
 
-[![Calmoji CI](https://github.com/threshold-continuity-alliance/calmoji/actions/workflows/ci.yml/badge.svg)](https://github.com/threshold-continuity-alliance/calmoji/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/threshold-continuity-alliance/calmoji/branch/main/graph/badge.svg)](https://codecov.io/gh/threshold-continuity-alliance/calmoji)
+[![Calmoji CI](https://github.com/threshold-continuity-alliance/calmoji/actions/workflows/ci.yml/badge.svg?style=flat-square)](https://github.com/threshold-continuity-alliance/calmoji/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/threshold-continuity-alliance/calmoji/branch/main/graph/badge.svg?style=flat-square)](https://codecov.io/gh/threshold-continuity-alliance/calmoji)
 
-**The Ritual Calendar Crafter — Where Time Meets Glyph**
-*...and where your visual cortex takes over from your guilt-ridden monkey mind!*
+**The Ritual Calendar Crafter — Where Time Meets Glyph**  
+*...and where your visual cortex takes over from your guilt-ridden monkey mind!*  
 *A symbolic scheduling engine aligned with EBI48, semantic focus blocks, and making the most of your life adventure.*
 
 ---
