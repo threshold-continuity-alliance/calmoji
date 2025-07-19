@@ -1,6 +1,6 @@
 from datetime import datetime
 import pytest
-from calmoji.utils import get_first_monday_after, get_first_weekday_of_year
+from calmoji.utils import get_first_monday_after, get_first_weekday_of_year, group_phase_days_by_week
 from calmoji.types import Phase
 
 
@@ -41,3 +41,28 @@ def test_first_weekday_of_year_invalid():
 
     with pytest.raises(ValueError):
         get_first_weekday_of_year(2025, -1)
+
+
+def test_group_phase_days_by_week_basic():
+    """
+    Ensure that days across a 7-day range are correctly grouped by ISO week.
+    """
+    phase = Phase(
+        name="Test Week",
+        start=datetime(2025, 3, 3),  # Monday
+        end=datetime(2025, 3, 9),    # Sunday
+        start_offset=0,
+        end_offset=6,
+        emoji="🧪"
+    )
+
+    week_map = group_phase_days_by_week(phase)
+    
+    # Should cover exactly one ISO week: 2025-W10
+    assert len(week_map) == 1, f"Expected 1 week, got {len(week_map)}"
+    
+    (year, week), days = list(week_map.items())[0]
+    assert year == 2025
+    assert week == 10
+    assert len(days) >= 1, "Expected at least one focus-eligible day"
+    assert all(isinstance(day, datetime) for day in days)

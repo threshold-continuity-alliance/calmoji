@@ -115,7 +115,7 @@ def test_glyph_key_event_written_even_when_alone(tmp_path):
 
     try:
         write_focus_blocks_weekly([saturday_only_phase])
-        expected_filename = output_dir / "focus_blocks_glyph-test-phase_2025_W01.ics"
+        expected_filename = output_dir / "focus_blocks_glyph_test_phase_2025_W01.ics"
         assert expected_filename.exists(), "ICS file with glyph event was not created"
 
         content = expected_filename.read_text(encoding="utf-8")

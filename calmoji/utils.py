@@ -105,15 +105,15 @@ def slugify(value: str, allow_unicode: bool = False) -> str:
     return re.sub(r"[-\s]+", "_", value)
 
 
-def group_phase_days_by_week(phase: Phase) -> Dict[Tuple[int, int], List[datetime]]:    
-    """Return a dict mapping (year, ISO week number) → list of datetime.date within that phase."""
+def group_phase_days_by_week(phase: Phase) -> dict[tuple[int, int], list[datetime]]:
+    """Return a dict mapping (year, ISO week number) → list of datetime.datetime within that phase."""
+
     week_map = defaultdict(list)
     current_day = phase.start
 
     while current_day <= phase.end:
-        if current_day.weekday() in ACTIVE_WEEKDAYS:
-            iso_year, iso_week, _ = current_day.isocalendar()
-            week_map[(iso_year, iso_week)].append(current_day)
+        iso_year, iso_week, _ = current_day.isocalendar()
+        week_map[(iso_year, iso_week)].append(current_day)
         current_day += datetime.timedelta(days=1)
 
     return week_map
