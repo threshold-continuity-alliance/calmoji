@@ -6,7 +6,7 @@ import re
 import unicodedata
 from typing import Union, Dict, List, Tuple
 from collections import defaultdict
-from calmoji.types import Phase
+from calmoji.types import Phase, PhaseWeekSpan
 from calmoji.focus_blocks_config import ACTIVE_WEEKDAYS
 
 
@@ -71,7 +71,8 @@ def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime.d
 
 def generate_uid(dt: datetime.datetime, label: str, namespace: str = "calmoji") -> str:
     raw = f"{namespace}:{dt.isoformat()}:{label}"
-    return sha256(raw.encode("utf-8")).hexdigest()[:16]
+    uid_hash = sha256(raw.encode("utf-8")).hexdigest()[:16]
+    return f"{uid_hash}-{dt.strftime('%Y%m%dT%H%M%S')}@{namespace}.local"
 
 def get_start_date_from_year(year: int) -> datetime:
     """
@@ -105,9 +106,8 @@ def slugify(value: str, allow_unicode: bool = False) -> str:
     return re.sub(r"[-\s]+", "_", value)
 
 
-def group_phase_days_by_week(phase: Phase) -> dict[tuple[int, int], list[datetime]]:
-    """Return a dict mapping (year, ISO week number) → list of datetime.datetime within that phase."""
-
+def group_phase_days_by_week(phase: Phase) -> list[PhaseWeekSpan]:
+    """Return a list of PhaseWeekSpan objects for a given Phase."""
     week_map = defaultdict(list)
     current_day = phase.start
 
@@ -116,4 +116,17 @@ def group_phase_days_by_week(phase: Phase) -> dict[tuple[int, int], list[datetim
         week_map[(iso_year, iso_week)].append(current_day)
         current_day += datetime.timedelta(days=1)
 
-    return week_map
+    return [
+        PhaseWeekSpan(start=days[0].date(), end=days[-1].date(), days=days)
+        for (iso_year, iso_week), days in sorted(week_map.items())
+    ]
+
+
+def fold_ics_line(line: str, limit: int = 75) -> str:
+    """Fold ICS lines per RFC 5545 section 3.1 (fold at 75 octets, indent with space)."""
+    folded = []
+    while len(line) > limit:
+        folded.append(line[:limit])
+        line = " " + line[limit:]
+    folded.append(line)
+    return "\r\n".join(folded)

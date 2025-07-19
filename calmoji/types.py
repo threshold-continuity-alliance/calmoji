@@ -1,8 +1,8 @@
 # calmoji/types.py
 
 from dataclasses import dataclass
-from datetime import datetime
-from typing import Optional
+from datetime import datetime, date
+from typing import Optional, List
 
 @dataclass
 class Event:
@@ -37,3 +37,13 @@ class Phase:
         if self.start and self.end:
             return (self.end - self.start).days + 1
         return None
+
+@dataclass
+class PhaseWeekSpan:
+    start: date
+    end: date
+    days: List[date]
+
+    @property
+    def iso_week_label(self) -> str:
+        return f"{self.start.isocalendar()[0]}-W{self.start.isocalendar()[1]:02}"

@@ -1,6 +1,6 @@
 # calmoji/focus_blocks_writer.py
 
-from datetime import datetime
+from datetime import datetime, timedelta, date, time
 from calmoji.focus_blocks_config import FOCUS_BLOCKS, ACTIVE_WEEKDAYS
 from calmoji.types import Phase, Event
 from calmoji.utils import group_phase_days_by_week, slugify
@@ -29,6 +29,10 @@ def generate_focus_block_events_for_days(days: list[datetime]) -> list[Event]:
 
 def generate_focus_block_glyph_key_event(day: datetime) -> Event:
     """Return a single all-day event on Saturday with emoji reference key."""
+    
+    if isinstance(day, date) and not isinstance(day, datetime):
+        day = datetime.combine(day, time(0, 0))
+        
     emoji_lines = [f"{emoji}  {desc}" for (_, _, _, _, _, emoji), desc in zip(FOCUS_BLOCKS, [
         "Deep Thinking", "Writing", "Reading", "Technical", "Admin",
         "Comms", "Reflect", "Analysis", "Creative", "Maintenance", "Decision", "Closure"
@@ -43,69 +47,26 @@ def generate_focus_block_glyph_key_event(day: datetime) -> Event:
     )
 
 
-# def write_focus_blocks_weekly(phases: list[Phase]) -> None:
-#     """Write focus blocks per week per phase into .ics files, always including glyph key on Saturday."""
-#     for phase in phases:
-#         weekly_days = group_phase_days_by_week(phase)
-
-#         for (year, week), days in weekly_days.items():
-#             events = generate_focus_block_events_for_days(days)
-
-#             # Always include glyph key on Saturday if present
-#             saturday = next((d for d in days if d.weekday() == 5), None)
-#             if saturday:
-#                 glyph_event = generate_focus_block_glyph_key_event(saturday)
-#                 events.append(glyph_event)
-
-#             if events:
-#                 filename = f"output/focus_blocks_{slugify(phase.name)}_{year}_W{week:02d}.ics"
-#                 write_events_to_ics(events, filename)
-#                 print(f"✅ Wrote: {filename}")
-
-# def write_focus_blocks_weekly(phases: list[Phase]) -> None:
-#     """Write focus blocks per week per phase into .ics files, always including glyph key on Saturdays."""
-#     for phase in phases:
-#         print(f"📅 {phase.name} covers weeks: {[w for (_, w) in group_phase_days_by_week(phase).keys()]}")
-#         weekly_days = group_phase_days_by_week(phase)
-
-#         for (year, week), days in weekly_days.items():
-#             events = generate_focus_block_events_for_days(days)
-
-#             # 🔒 Always add glyph block on Saturday if one exists
-#             saturday = next((d for d in days if d.weekday() == 5), None)
-#             if saturday:
-#                 events.append(generate_focus_block_glyph_key_event(saturday))
-
-#             # ✅ Write .ics if any event exists
-#             if events:
-#                 filename = f"output/focus_blocks_{slugify(phase.name)}_{year}_W{week:02d}.ics"
-#                 write_events_to_ics(events, filename)
-#                 print(f"✅ Wrote: {filename}")
-
-
-from datetime import timedelta
-
 def write_focus_blocks_weekly(phases: list[Phase]) -> list[str]:
     written_paths = []
 
     for phase in phases:
-        weekly_days = group_phase_days_by_week(phase)
-        print(f"📅 {phase.name} covers weeks: {[w for (_, w) in weekly_days.keys()]}")
+        week_spans = group_phase_days_by_week(phase)
+        print(f"📅 {phase.name} covers weeks: {[span.iso_week_label for span in week_spans]}")
 
-        for (year, week), week_days in weekly_days.items():
+        for span in week_spans:
             # ⏳ 1. Filter only eligible weekdays for focus blocks
-            focus_days = [d for d in week_days if d.weekday() in ACTIVE_WEEKDAYS]
+            focus_days = [d for d in span.days if d.weekday() in ACTIVE_WEEKDAYS]
             events = generate_focus_block_events_for_days(focus_days)
 
             # ⛩️ 2. Add glyph key on Saturday if it's inside phase bounds
-            week_start = min(week_days)
-            saturday = week_start + timedelta(days=(5 - week_start.weekday()) % 7)
-            if phase.start <= saturday <= phase.end:
+            saturday = span.start + timedelta(days=(5 - span.start.weekday()) % 7)
+            if phase.start.date() <= saturday <= phase.end.date():
                 events.append(generate_focus_block_glyph_key_event(saturday))
 
             # 💾 3. Write file if any events exist
             if events:
-                filename = f"output/focus_blocks_{slugify(phase.name)}_{year}_W{week:02d}.ics"
+                filename = f"output/focus_blocks_{slugify(phase.name)}_{span.iso_week_label}.ics"
                 write_events_to_ics(events, filename)
                 written_paths.append(filename)
                 print(f"✅ Wrote: {filename}")
@@ -115,8 +76,9 @@ def write_focus_blocks_weekly(phases: list[Phase]) -> list[str]:
 
 def generate_focus_block_events(phases: list[Phase]) -> list[Event]:
     """Generate all focus block events across all phases (flattened list)."""
-    events = []
+    events: list[Event] = []
     for phase in phases:
-        for days in group_phase_days_by_week(phase).values():
-            events.extend(generate_focus_block_events_for_days(days))
+        week_spans = group_phase_days_by_week(phase)  # returns list[PhaseWeekSpan]
+        for span in week_spans:
+            events.extend(generate_focus_block_events_for_days(span.days))
     return events
