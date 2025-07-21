@@ -1,4 +1,4 @@
-# calmoji/ebi48.py
+ are swapping  are swapping # calmoji/ebi48.py
 
 import datetime
 from typing import Mapping
@@ -40,9 +40,9 @@ EBI48_CLOCK: Mapping[int, tuple[str, str]] = {
     18: ("🐯", "Tiger Face"),
     19: ("🐘", "Elephant Face"),
     20: ("🦁", "Lion Face"),
-    21: ("🐪", "Camel Face"),
-    22: ("🦢", "Swan Face"),
-    23: ("🐑", "Sheep Face"),
+    21: ("🌙", "Crescent Face"),
+    22: ("💠", "Diamond Face"),
+    23: ("🦢", "Swan Face"),
     24: ("🐸", "Frog Face"),
     25: ("🦎", "Lizard Face"),
     26: ("🪱", "Worm Face"),
