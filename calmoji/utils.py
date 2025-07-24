@@ -1,60 +1,81 @@
 # calmoji/utils.py
 
-import datetime
-from hashlib import sha256
+from datetime import datetime, timedelta, timezone
 import re
 import unicodedata
-from typing import Union, Dict, List, Tuple
+
 from collections import defaultdict
-from calmoji.uid import generate_uid
-from calmoji.types import Phase, PhaseWeekSpan
+from hashlib import sha256
+from typing import Union, Dict, List
+
 from calmoji.focus_blocks_config import ACTIVE_WEEKDAYS
+from calmoji.types import Phase, PhaseWeekSpan
+from calmoji.uid import generate_uid
+from calmoji.calendar_config import get_year_start_date
 
 
-def parse_start_date(start_str):
-    return datetime.datetime.strptime(start_str, "%Y-%m-%d")
+def coerce_to_datetime(obj: Union[datetime]) -> datetime:
+    """
+    Normalize input to a datetime object.
+    
+    Parameters:
+        obj (datetime): A datetime object (already datetime — function retained for interface symmetry).
+    
+    Returns:
+        datetime: Normalized datetime object.
+    """
+    if isinstance(obj, datetime):
+        return obj
+    raise TypeError("Expected datetime")
 
-def format_datetime(dt):
+
+def coerce_to_utc(dt: datetime) -> datetime:
+    """
+    Ensure a datetime is timezone-aware and in UTC.
+    
+    Args:
+        dt (datetime): A datetime object.
+
+    Returns:
+        datetime: The same moment, explicitly marked as UTC.
+
+    Raises:
+        TypeError: If input is not a datetime object.
+        ValueError: If input has a non-UTC timezone.
+    """
+    if not isinstance(dt, datetime):
+        raise TypeError(f"Expected datetime object, got {type(dt).__name__}")
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    if dt.tzinfo != timezone.utc:
+        raise ValueError("Input datetime must be in UTC.")
+    return dt
+
+
+def format_datetime(dt: datetime) -> str:
     """Format a datetime object in UTC for .ics files."""
     return dt.strftime('%Y%m%dT%H%M%SZ')
 
-def format_date(d):
-    """Format a date object for all-day ICS events."""
-    return d.strftime('%Y%m%d')
 
-def format_range_slug(start_date, end_date):
+def format_range_slug(start_date: datetime, end_date: datetime) -> str:
     """Generate a YYYY-MM-DD_to_YYYY-MM-DD slug."""
     return f"{start_date:%Y-%m-%d}_to_{end_date:%Y-%m-%d}"
 
-def format_time_for_tz(dt, tz_name):
-    """
-    Convert dt to tz and format as string
-    """
-    raise NotImplementedError("Timezone formatting not yet implemented.")
 
-def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime.datetime:
+def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime:
     """
     Return the first occurrence of the specified weekday in the given year at 00:05 UTC.
-
-    Args:
-        year (int): The calendar year.
-        weekday (str|int): The target weekday. Accepts full name ("Monday"),
-                           abbreviation ("Mon", "M"), or integer (0=Monday...6=Sunday).
-
-    Returns:
-        datetime.datetime: Datetime object for first matching weekday of the year.
     """
     weekday_map = {
         "monday": 0, "mon": 0, "m": 0,
         "tuesday": 1, "tue": 1, "t": 1,
         "wednesday": 2, "wed": 2, "w": 2,
-        "thursday": 3, "thu": 3, "h": 3,  # H for "Thursday" in calendars
+        "thursday": 3, "thu": 3, "h": 3,
         "friday": 4, "fri": 4, "f": 4,
         "saturday": 5, "sat": 5, "s": 5,
         "sunday": 6, "sun": 6, "u": 6
     }
 
-    # Normalize input
     if isinstance(weekday, str):
         wd = weekday.lower().strip()
         if wd not in weekday_map:
@@ -65,34 +86,23 @@ def get_first_weekday_of_year(year: int, weekday: Union[str, int]) -> datetime.d
     else:
         raise ValueError(f"Weekday must be int [0–6] or valid name/abbr, got: {weekday}")
 
-    d = datetime.datetime(year, 1, 1)
+    d = datetime(year, 1, 1, 0, 5, tzinfo=timezone.utc)
     while d.weekday() != target_wd:
-        d += datetime.timedelta(days=1)
-    return d.replace(hour=0, minute=5)
+        d += timedelta(days=1)
+    return d
 
 
-def get_start_date_from_year(year: int) -> datetime:
-    """
-    Given a year (e.g. 2024), returns the academic year start date
-    (September 15th of that year) as a datetime object.
-    """
-    return parse_start_date(f"{year}-09-15")
-
-def get_first_monday_after(d):
-    """
-    Given a datetime object, return the first Monday on or after that date.
-    """
-    days_ahead = -d.weekday()  # Monday = 0
+def get_first_monday_after(d: datetime) -> datetime:
+    """Return the first Monday on or after the given date."""
+    days_ahead = -d.weekday()
     if days_ahead < 0:
         days_ahead += 7
-    return d + datetime.timedelta(days=days_ahead)
+    return d + timedelta(days=days_ahead)
+
 
 def slugify(value: str, allow_unicode: bool = False) -> str:
     """
     Convert strings to ASCII-safe slugs suitable for filenames or URLs.
-    - Replaces spaces with underscores
-    - Removes non-word characters
-    - Converts to lowercase
     """
     value = str(value)
     if allow_unicode:
@@ -103,27 +113,73 @@ def slugify(value: str, allow_unicode: bool = False) -> str:
     return re.sub(r"[-\s]+", "_", value)
 
 
-def group_phase_days_by_week(phase: Phase) -> list[PhaseWeekSpan]:
-    """Return a list of PhaseWeekSpan objects for a given Phase."""
+def group_phase_days_by_week(phase: Phase) -> List[PhaseWeekSpan]:
+    """Return a list of PhaseWeekSpan objects (with datetimes) for a given Phase."""
     week_map = defaultdict(list)
     current_day = phase.start
 
     while current_day <= phase.end:
         iso_year, iso_week, _ = current_day.isocalendar()
         week_map[(iso_year, iso_week)].append(current_day)
-        current_day += datetime.timedelta(days=1)
+        current_day += timedelta(days=1)
 
     return [
-        PhaseWeekSpan(start=days[0].date(), end=days[-1].date(), days=days)
+        PhaseWeekSpan(start=days[0], end=days[-1], days=days)
         for (iso_year, iso_week), days in sorted(week_map.items())
     ]
 
 
 def fold_ics_line(line: str, limit: int = 75) -> str:
-    """Fold ICS lines per RFC 5545 section 3.1 (fold at 75 octets, indent with space)."""
+    """
+    🔒 fold_ics_line — Constrain meaning into line-safe fragments
+
+    Folds a long iCalendar content line per RFC 5545 §3.1.
+    - Splits at 75 octets max (UTF-8-safe assumption).
+    - Continuation lines begin with a single space.
+    - Returns a CRLF-joined string ready for ICS output.
+
+    Input: A single logical content line.
+    Output: Folded physical lines (CRLF-separated) suitable for transmission.
+    """
     folded = []
     while len(line) > limit:
         folded.append(line[:limit])
         line = " " + line[limit:]
     folded.append(line)
     return "\r\n".join(folded)
+
+
+def unfold_ics_lines(content: str) -> list[str]:
+    """
+    🔓 unfold_ics_lines — Restore semantic continuity from line folds
+
+    Unfolds a full .ics file (or chunk) by joining continuation lines.
+    - Lines beginning with a space are continuations of the previous.
+    - Ensures logical content lines are reassembled for parsing or matching.
+
+    Input: Raw .ics content (CRLF or LF-separated).
+    Output: List of unfolded logical lines.
+
+    Lines beginning with a single space (0x20) are continuations of the previous line.
+    If a continuation appears without a preceding line, raise ValueError.
+    """
+    lines = content.splitlines()
+    unfolded = []
+
+    for i, line in enumerate(lines):
+        if line.startswith(" "):
+            if not unfolded:
+                raise ValueError(f"Malformed ICS: continuation line on line {i+1} with no prior content.")
+            unfolded[-1] += line[1:]
+        else:
+            unfolded.append(line)
+
+    return unfolded
+
+
+def format_time_for_tz(dt: datetime, tz_name: str) -> str:
+    """
+    Convert datetime to a string representation in a given timezone.
+    [Placeholder for future implementation.]
+    """
+    raise NotImplementedError("Timezone formatting not yet implemented.")

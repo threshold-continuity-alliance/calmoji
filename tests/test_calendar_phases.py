@@ -1,24 +1,31 @@
 # tests/test_calendar_phases.py
 
 import datetime
+
 from calmoji.calendar_phases import get_semester_phases
-from calmoji.config import SEMESTER_PHASES, YEAR_START_DATE
+from calmoji.calendar_config import get_year_start_date, get_semester_phase_definitions
 from calmoji.types import Phase
 
-def test_semester_phase_count():
-    phases = get_semester_phases(YEAR_START_DATE)
-    assert len(phases) == len(SEMESTER_PHASES)
+
+def test_semester_phase_count_matches_definitions():
+    year = 2024
+    phases = get_semester_phases(year)
+    ref_defs = get_semester_phase_definitions()
+    assert len(phases) == len(ref_defs)
+
 
 def test_get_semester_phases_returns_expected_structure():
-    anchor_date = datetime.datetime(2024, 9, 15)
-    phases = get_semester_phases(anchor_date)
+    year = 2024
+    anchor_date = get_year_start_date(year)
+    phases = get_semester_phases(year)
+    ref_defs = get_semester_phase_definitions()
 
     assert isinstance(phases, list)
     assert all(isinstance(p, Phase) for p in phases)
-    assert len(phases) == len(SEMESTER_PHASES)
+    assert len(phases) == len(ref_defs)
 
     for i, phase in enumerate(phases):
-        ref = SEMESTER_PHASES[i]
+        ref = ref_defs[i]
         expected_start = anchor_date + datetime.timedelta(days=ref.start_offset)
         expected_end = anchor_date + datetime.timedelta(days=ref.end_offset)
 
@@ -27,16 +34,18 @@ def test_get_semester_phases_returns_expected_structure():
         assert phase.start == expected_start
         assert phase.end == expected_end
 
+
 def test_phase_enrichment_fields_exist():
-    phases = get_semester_phases(datetime.datetime(2024, 9, 15))
+    phases = get_semester_phases(2024)
     for p in phases:
         assert hasattr(p, "meeting_density")
         assert hasattr(p, "allow_meetings")
         assert hasattr(p, "note")
         assert p.start <= p.end
 
-def test_phase_density_tags():
-    phases = get_semester_phases(datetime.datetime(2024, 9, 15))
+
+def test_phase_density_classification():
+    phases = get_semester_phases(2024)
 
     for p in phases:
         if any(kw in p.name for kw in ["Break", "Rest", "Drift"]):
@@ -52,9 +61,10 @@ def test_phase_density_tags():
             assert p.meeting_density == "normal"
             assert p.allow_meetings is True
 
-def test_phase_duration_computation():
-    phases = get_semester_phases(YEAR_START_DATE)
+
+def test_phase_duration_computation_is_correct():
+    phases = get_semester_phases(2024)
 
     for p in phases:
         expected = (p.end - p.start).days + 1
-        assert p.duration_days == expected, f"{p.name} has incorrect duration"
+        assert p.duration_days == expected, f"{p.name} has incorrect duration: {p.duration_days} ≠ {expected}"

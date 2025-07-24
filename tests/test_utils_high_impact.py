@@ -12,10 +12,10 @@ class TestUtilsHighImpact(unittest.TestCase):
 
     def test_create_ics_header_format(self):
         header = create_ics_header("test comment")
-        self.assertTrue(header.startswith("BEGIN:VCALENDAR"))
-        self.assertIn("X-WR-CALNAME", header)
-        self.assertIn("PRODID", header)
-        self.assertTrue("test comment" in header or "X-COMMENT" in header)
+        self.assertTrue(header[0].startswith("BEGIN:VCALENDAR"))
+        self.assertTrue(any(line.startswith("X-WR-CALNAME:") for line in header))
+        self.assertTrue(any(line.startswith("PRODID:") for line in header))
+        self.assertIn("NAME:test comment", header)
 
     def test_group_phase_days_by_week_cross_year(self):
         # Dec 30, 2024 (Monday) to Jan 5, 2025 (Sunday)

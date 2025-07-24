@@ -1,37 +1,44 @@
+# tests/test_ics_output.py
+
 import datetime
 from calmoji.calendar_phases import get_semester_phases
 from calmoji.slot_generator import generate_meeting_slots
 from calmoji.ics_writer import create_ics_header, create_ics_footer
-from calmoji.utils import get_start_date_from_year
-from calmoji.types import Event, Phase
+from calmoji.calendar_config import get_year_start_date
+from calmoji.types import Event
+from calmoji.generator import get_all_events
+
+
+
+def make_test_event() -> Event:
+    """Return a minimal test Event."""
+    start = datetime.datetime(2024, 9, 15, 13, 35)
+    return Event(
+        start=start,
+        end=start + datetime.timedelta(minutes=25),
+        summary="Test Slot",
+        description="Test Description",
+        emoji="🦊",
+    )
 
 
 def test_ics_file_line_count(tmp_path):
     testfile = tmp_path / "test_output.ics"
 
-    # Set up a simple event using the new Event dataclass
-    start = datetime.datetime(2024, 9, 15, 13, 35)
-    end = start + datetime.timedelta(minutes=25)
-    event = Event(
-        start=start,
-        end=end,
-        summary="Test Slot",
-        description="Test Description",
-        emoji="🦊"
+    # Compose .ics content
+    event = make_test_event()
+    ics_content = (
+        "\n".join(create_ics_header()) + "\n" +
+        "\n".join(event.to_ics()) + "\n" +
+        "\n".join(create_ics_footer()) + "\n"
     )
+    testfile.write_text(ics_content, encoding="utf-8")
 
-    # Write ICS file with one event
-    with open(testfile, "w", encoding="utf-8") as f:
-        f.write(create_ics_header())
-        f.write("\n".join(event.to_ics()))
-        f.write(create_ics_footer())
+    # Read and inspect
+    lines = testfile.read_text(encoding="utf-8").splitlines()
 
-    # Read and verify output
-    with open(testfile, "r", encoding="utf-8") as f:
-        lines = f.readlines()
-
-    # Sanity checks
-    assert any("UID:" in line for line in lines)
-    assert any("BEGIN:VEVENT" in line for line in lines)
-    assert any("END:VEVENT" in line for line in lines)
-    assert len(lines) > 10  # Enough content to be a valid .ics
+    # Assertions
+    assert any("UID:" in line for line in lines), "Missing UID"
+    assert any("BEGIN:VEVENT" in line for line in lines), "Missing BEGIN:VEVENT"
+    assert any("END:VEVENT" in line for line in lines), "Missing END:VEVENT"
+    assert len(lines) > 10, f"Expected .ics to be longer than 10 lines, got {len(lines)}"

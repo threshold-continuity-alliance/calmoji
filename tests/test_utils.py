@@ -2,6 +2,7 @@ import datetime
 import pytest
 from calmoji.utils import get_first_monday_after, get_first_weekday_of_year, group_phase_days_by_week
 from calmoji.types import Phase, PhaseWeekSpan
+from calmoji.utils import fold_ics_line, unfold_ics_lines
 
 
 def test_first_monday_after_basic():
@@ -60,3 +61,38 @@ def test_group_phase_days_by_week_basic():
     assert isinstance(week_spans[0], PhaseWeekSpan)
     assert week_spans[0].days[0].date() == datetime.date(2025, 1, 1)
     assert week_spans[0].days[-1].date() == datetime.date(2025, 1, 3)
+
+
+def test_fold_and_unfold_roundtrip():
+    logical_line = "DESCRIPTION:" + "This is a long description that should be folded over multiple lines according to RFC 5545 specifications." * 2
+    folded = fold_ics_line(logical_line)
+    assert "\r\n" in folded
+    assert any(line.startswith(" ") for line in folded.splitlines()[1:])  # continuation lines
+
+    # Roundtrip
+    unfolded = unfold_ics_lines(folded)
+    assert isinstance(unfolded, list)
+    assert unfolded[0] == logical_line
+
+
+def test_fold_ics_line_with_short_input():
+    short_line = "SUMMARY:Hello"
+    folded = fold_ics_line(short_line)
+    assert folded == short_line
+
+
+def test_unfold_ics_lines_with_no_folds():
+    lines = [
+        "BEGIN:VEVENT",
+        "SUMMARY:Short event",
+        "END:VEVENT"
+    ]
+    unfolded = unfold_ics_lines("\r\n".join(lines))
+    assert unfolded == lines
+
+
+def test_unfold_ics_lines_with_malformed_continuation():
+    malformed = " Second line with no leader"
+    with pytest.raises(ValueError):
+        unfold_ics_lines(malformed)
+

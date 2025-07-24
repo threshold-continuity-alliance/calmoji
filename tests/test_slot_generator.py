@@ -2,11 +2,12 @@
 
 from calmoji.slot_generator import generate_meeting_slots
 from calmoji.calendar_phases import get_semester_phases
-from calmoji.utils import get_start_date_from_year
+from calmoji.calendar_config import get_year_start_date
 from calmoji.types import Event, Phase
+from calmoji.utils import coerce_to_utc
 
 def test_slot_generation_for_first_phase():
-    start_date = get_start_date_from_year(2024)
+    start_date = get_year_start_date("academic")
     phase = get_semester_phases(start_date)[0]
     events = generate_meeting_slots(phase)
 
@@ -26,10 +27,10 @@ def test_slot_generation_for_first_phase():
 
 
 def test_all_events_within_phase_range():
-    start_date = get_start_date_from_year(2024)
+    start_date = get_year_start_date("academic")
     phase = get_semester_phases(start_date)[0]
     events = generate_meeting_slots(phase)
 
     for evt in events:
-        assert phase.start <= evt.start <= phase.end
+        assert coerce_to_utc(phase.start) <= evt.start <= coerce_to_utc(phase.end)
         assert evt.start.date() == evt.end.date()

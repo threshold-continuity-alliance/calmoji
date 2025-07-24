@@ -18,6 +18,9 @@ FOCUS_BLOCKS = [
     (12, 22,  0, 23, 36, "⛩️"),    # Closure
 ]
 
-# ACTIVE_WEEKDAYS: Optional filter for days to include focus blocks
-# Default active days for focus blocks (UTC-based)
-ACTIVE_WEEKDAYS = [6, 0, 1, 2, 3, 4]  # Sunday to Friday (excluding Saturday = 5)
+# ACTIVE_WEEKDAYS: Optional override for days to include focus blocks (0 = Monday, 6 = Sunday)
+# Set to None to use default full-week behavior
+ACTIVE_WEEKDAYS = None  # Example override: [0, 1, 2, 3, 4] for Monday–Friday
+
+# Default: all 7 days (Sunday to Saturday)
+DEFAULT_ACTIVE_WEEKDAYS = list(range(7))  # [0, 1, 2, 3, 4, 5, 6]

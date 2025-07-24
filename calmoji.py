@@ -10,7 +10,7 @@ from datetime import date
 from calmoji.calendar_phases import get_semester_phases
 from calmoji.slot_generator import generate_meeting_slots
 from calmoji.utils import (
-    get_start_date_from_year,
+    get_year_start_date
     slugify,
     format_range_slug,
 )
@@ -28,6 +28,7 @@ def main():
     parser.add_argument("--year", type=int, help="Start year (e.g., 2024)", default=2024)
     parser.add_argument("--dry-run", action="store_true", help="Only show output, don't write ICS files")
     parser.add_argument("--version", action="version", version="EBI48 Generator v2025.1")
+    parser.add_argument("--calendar-alignment", choices=["academic", "calendar"], default="academic")
     args = parser.parse_args()
 
     dry_mode = args.dry_run
@@ -40,7 +41,8 @@ def main():
     print("=" * 50)
 
     # 🌅 Step 1: Derive academic year start date and phase structure
-    start_date = get_start_date_from_year(year)
+    year_start = get_year_start_date(args.calendar_alignment)
+    start_date = datetime.combine(year_start, time.min)
     phases = get_semester_phases(start_date)
 
     # 📂 Step 2: Create output directory if needed
@@ -75,7 +77,8 @@ def main():
 
     # 🧘 Step 6: Write weekly focus blocks (12x per day, Sunday–Friday)
     if not dry_mode:
-        write_focus_blocks_weekly(phases)
+        for phase in phases:
+            write_focus_blocks_weekly(phases)
     # TODO: FIX focus blocks dry_mode()
     # if dry_mode:
     #     dry_run(focus_events, label="Week 2025-W01", kind="focus blocks")
